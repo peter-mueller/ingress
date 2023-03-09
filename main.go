@@ -17,7 +17,7 @@ func main() {
 	flag.BoolVar(&production, "production", false, "enable production mode")
 	flag.Parse()
 
-	LoadEnv(&c)
+	LoadEnv(&c, production)
 
 	ingress := NewIngress(c)
 	if production {
