@@ -32,13 +32,19 @@ func main() {
 	}
 }
 
-func LoadEnv(c *Config) {
+func LoadEnv(c *Config, production bool) {
 	var err error
 
 	c.Domain = os.Getenv("INGRESS_DOMAIN")
 	if c.Domain == "" {
 		log.Fatalln("INGRESS_DOMAIN not set")
 	}
+
+	c.OwnerEmail = os.Getenv("INGRESS_OWNEREMAIL")
+	if production && c.OwnerEmail == "" {
+		log.Fatalln("INGRESS_OWNEREMAIL not set but required in production mode")
+	}
+
 	mappingsEnv := os.Getenv("INGRESS_HOSTMAPPINGS")
 	if mappingsEnv == "" {
 		log.Fatalln("INGRESS_HOSTMAPPINGS not set")

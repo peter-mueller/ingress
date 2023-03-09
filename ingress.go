@@ -50,18 +50,21 @@ type ProxyByHost map[string]*httputil.ReverseProxy
 
 type Ingress struct {
 	Domain            string
+	OwnerEmail        string
 	HostMappings      []HostMapping
 	HostReversProxies ProxyByHost
 }
 
 type Config struct {
-	Domain   string
-	Mappings []HostMapping
+	Domain     string
+	OwnerEmail string
+	Mappings   []HostMapping
 }
 
 func NewIngress(c Config) *Ingress {
 	ingress := &Ingress{
 		Domain:            c.Domain,
+		OwnerEmail:        c.OwnerEmail,
 		HostReversProxies: make(ProxyByHost),
 		HostMappings:      c.Mappings,
 	}
@@ -91,6 +94,9 @@ func (i *Ingress) ListenAndServeProduction(addr string) error {
 	if i.Domain == "" {
 		return errors.New("domain not configured")
 	}
+	if i.OwnerEmail == "" {
+		return errors.New("owner email not configured")
+	}
 	fmt.Println("autocert domain:", i.Domain)
 
 	hosts := make([]string, len(i.HostMappings)+1)
@@ -102,7 +108,7 @@ func (i *Ingress) ListenAndServeProduction(addr string) error {
 	certManager := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist(hosts...),
-		Email:      "peter7995@gmail.com",
+		Email:      i.OwnerEmail,
 		Cache:      autocert.DirCache("certs"),
 	}
 
